@@ -14,6 +14,7 @@ from aws_cdk.aws_lambda_python_alpha import PythonFunction, PythonLayerVersion
 from os import path, getcwd
 from constructs import Construct
 
+
 class LC_InternalStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
