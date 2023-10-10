@@ -3,8 +3,8 @@ import json
 from framework import handlerDecorator, LoggerInstance
 
 
-def rawHandler(event, context, logger:LoggerInstance):
-    table = getUserTable()
+def rawHandler(event, context, logger: LoggerInstance):
+    (dynamodb, table) = getUserTable()
     params = event["pathParameters"]
     userEmail = params["email"]
     logger.addCtxItem("userEmail", userEmail)
