@@ -1,12 +1,12 @@
 from db import getUserTable
 import json
 from framework import handlerDecorator, LoggerInstance
+from util import getEmailFromPathParams
 
 
 def rawHandler(event, context, logger:LoggerInstance):
     table = getUserTable()
-    params = event["pathParameters"]
-    userEmail = params["email"]
+    userEmail = getEmailFromPathParams(event)
     logger.addCtxItem("userEmail", userEmail)
     response = table.get_item(Key={"email": userEmail})
     if "Item" not in response:
