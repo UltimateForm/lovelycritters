@@ -46,8 +46,24 @@ class LC_InternalStack(Stack):
             function_name="lc-internal-readUser",
             **commonFunctionArgs,
         )
+        updateUserLmbd = PythonFunction(
+            self,
+            "updateUser",
+            entry=path.join(basePath, "user/update"),
+            function_name="lc-internal-updateUser",
+            **commonFunctionArgs,
+        )
+        deleteUserLmbd = PythonFunction(
+            self,
+            "deleteUser",
+            entry=path.join(basePath, "user/delete"),
+            function_name="lc-internal-deleteUser",
+            **commonFunctionArgs,
+        )
         dbs.user.grant_read_data(readUserLmbd)
         dbs.user.grant_write_data(createUserLmbd)
+        dbs.user.grant_write_data(deleteUserLmbd)
+        dbs.user.grant_write_data(updateUserLmbd)
         api = aws_apigateway.RestApi(
             self,
             "internal-api",
@@ -58,7 +74,8 @@ class LC_InternalStack(Stack):
             },
         )
         userApi = api.root.add_resource("user")
-        userApi.add_resource("{email}").add_method(
+        userApiEmailPathed = userApi.add_resource("{email}")
+        userApiEmailPathed.add_method(
             "GET",
             aws_apigateway.LambdaIntegration(
                 readUserLmbd,
@@ -70,6 +87,20 @@ class LC_InternalStack(Stack):
             aws_apigateway.LambdaIntegration(
                 createUserLmbd,
                 request_templates={"application/json": '{"statusCode": "201"}'},
+            ),
+        )
+        userApiEmailPathed.add_method(
+            "DELETE",
+            aws_apigateway.LambdaIntegration(
+                deleteUserLmbd,
+                request_templates={"application/json": '{"statusCode": "204"}'},
+            ),
+        )
+        userApiEmailPathed.add_method(
+            "PUT",
+            aws_apigateway.LambdaIntegration(
+                updateUserLmbd,
+                request_templates={"application/json": '{"statusCode": "200"}'},
             ),
         )
         throttleSettings = aws_apigateway.ThrottleSettings(

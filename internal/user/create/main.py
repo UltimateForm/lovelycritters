@@ -1,5 +1,5 @@
 import json
-from framework import handlerDecorator, LoggerInstance
+from framework import conflict, handlerDecorator, LoggerInstance, okCreated
 from user import User
 from db import getUserTable
 
@@ -16,19 +16,19 @@ def rawHandler(event, context, logger: LoggerInstance):
     user = User(**userPayload)
     response = None
     try:
-        response = table.put_item(Item=user.__dict__, ConditionExpression="attribute_not_exists(email)")
+        response = table.put_item(
+            Item=user.__dict__, ConditionExpression="attribute_not_exists(email)"
+        )
     except dynamodb.meta.client.exceptions.ConditionalCheckFailedException as e:
-        msg = "Failed to create item with email {0} as one already exists".format(user.email)
-        logger.info(msg, {"dbPutResponse": response})
-        return {
-            "statusCode": 409,
-            "body": json.dumps({
-                "errorMessage": msg
-            })
-        }
+        msg = "Failed to create item with email {0} as one already exists".format(
+            user.email
+        )
+        logger.info(msg, {"dbPutResponse": response, "exception": e.response})
+        return conflict({"errorMessage": msg})
+
     logger.info("DB responded ctx", {"dbPutResponse": response})
     logger.info("Created item successfully", {"userEmail": user.email})
-    return {"statusCode": 201}
+    return okCreated()
 
 
 handler = handlerDecorator(rawHandler)

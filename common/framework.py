@@ -15,6 +15,7 @@ def initLoggerConfig():
 class LoggerInstance:
     _context: dict[str, Any]
     _logger: logging.Logger
+
     def __init__(self, context: dict[str, Any] = {}) -> None:
         self._context = context
         self._logger = logging.getLogger()
@@ -51,15 +52,15 @@ class LoggerInstance:
 def handlerDecorator(
     handler: Callable[[Any, Any, LoggerInstance], dict]
 ) -> Callable[[Any, Any], dict]:
-    logger = LoggerInstance({"loggerName": "framework"})
 
     def handlerDecorated(event, context):
+        logger = LoggerInstance({"loggerName": "framework"})
         initLoggerConfig()
         logger.addCtx(
             {
                 "Resource": event.get("resource"),
                 "Method": event.get("httpMethod"),
-                "PathParameters": event.get("pathParameters"),
+                "Event": event,
             }
         )
         logger.info(
@@ -78,3 +79,30 @@ def handlerDecorator(
         return response
 
     return handlerDecorated
+
+
+def response(statusCode: int, body: dict = None):
+    response = {"statusCode": statusCode}
+    if body is not None:
+        response["body"] = json.dumps(body)
+    return response
+
+
+def notFound(body: dict = None):
+    return response(404, body=body)
+
+
+def conflict(body: dict = None):
+    return response(409, body=body)
+
+
+def okNoData():
+    return response(204)
+
+
+def ok(body: dict = None):
+    return response(200, body=body)
+
+
+def okCreated(body: dict = None):
+    return response(201, body=body)
