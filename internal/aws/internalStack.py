@@ -6,12 +6,12 @@ from aws_cdk import (
     aws_apigateway,
     CfnOutput,
     aws_dynamodb as dynamodb,
-    RemovalPolicy,
+    CfnParameter,
     # aws_sqs as sqs,
 )
 from .databases import createDatabases
 from aws_cdk.aws_lambda_python_alpha import PythonFunction, PythonLayerVersion
-from os import path, getcwd
+from os import path, getcwd, environ
 from constructs import Construct
 
 
@@ -20,6 +20,13 @@ class LC_InternalStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
         cwd = getcwd()
         basePath = f"{cwd}/internal"
+        jwtSecretParam = CfnParameter(
+            self,
+            "jwtSecret",
+            type="String",
+            description="The jwt secret (should be in parameter store but i dont have patience)",
+            default=environ.get("JWT_SECRET"),
+        )
         dbs = createDatabases(self)
         runtime: aws_lambda.Runtime = aws_lambda.Runtime.PYTHON_3_11
         pythonLayer = PythonLayerVersion(
@@ -60,10 +67,26 @@ class LC_InternalStack(Stack):
             function_name="lc-internal-deleteUser",
             **commonFunctionArgs,
         )
+        authFunctionArgs = {
+            **commonFunctionArgs,
+            "environment": {
+                **commonFunctionArgs.get("environment"),
+                "JWT_SECRET": jwtSecretParam.value_as_string,
+            },
+        }
+        authUserLmbd = PythonFunction(
+            self,
+            "authUser",
+            entry=path.join(basePath, "user/auth"),
+            function_name="lc-internal-authUser",
+            **authFunctionArgs,
+        )
         dbs.user.grant_read_data(readUserLmbd)
         dbs.user.grant_write_data(createUserLmbd)
         dbs.user.grant_write_data(deleteUserLmbd)
         dbs.user.grant_write_data(updateUserLmbd)
+        dbs.user.grant_read_data(authUserLmbd)
+
         api = aws_apigateway.RestApi(
             self,
             "internal-api",
@@ -100,6 +123,13 @@ class LC_InternalStack(Stack):
             "PUT",
             aws_apigateway.LambdaIntegration(
                 updateUserLmbd,
+                request_templates={"application/json": '{"statusCode": "200"}'},
+            ),
+        )
+        userApi.add_resource("auth").add_method(
+            "POST",
+            aws_apigateway.LambdaIntegration(
+                authUserLmbd,
                 request_templates={"application/json": '{"statusCode": "200"}'},
             ),
         )

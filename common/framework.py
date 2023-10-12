@@ -106,3 +106,9 @@ def ok(body: dict = None):
 
 def okCreated(body: dict = None):
     return response(201, body=body)
+
+def badRequest(body: dict = None):
+    return response(400, body=body)
+
+def unauthorized(body: dict = None):
+    return response(401, body=body)

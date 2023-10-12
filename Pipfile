@@ -7,9 +7,11 @@ name = "pypi"
 aws-cdk-lib = "==2.99.1"
 constructs = "<11.0.0,>=10.0.0"
 "aws-cdk.aws-lambda-python-alpha" = "*"
+pyjwt = "2.8.0"
 
 [dev-packages]
 boto3 = "1.27.1"
+pytest = "6.2.5"
 
 [requires]
 python_version = "3.11"
