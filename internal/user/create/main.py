@@ -1,6 +1,6 @@
 import json
 from framework import conflict, handlerDecorator, LoggerInstance, okCreated
-from user import User
+from models import User
 from db import getUserTable
 
 from datetime import date
@@ -23,10 +23,10 @@ def rawHandler(event, context, logger: LoggerInstance):
         msg = "Failed to create item with email {0} as one already exists".format(
             user.email
         )
-        logger.info(msg, {"dbPutResponse": response, "exception": e.response})
+        logger.info(msg, {"dbResponse": response, "exception": e.response})
         return conflict({"errorMessage": msg})
 
-    logger.info("DB responded ctx", {"dbPutResponse": response})
+    logger.info("DB responded ctx", {"dbResponse": response})
     logger.info("Created item successfully", {"userEmail": user.email})
     return okCreated()
 

@@ -1,0 +1,32 @@
+import datetime
+from typing import List
+from dataclasses import dataclass, field
+from typing import Optional
+
+
+@dataclass
+class User:
+    email: str
+    name: str
+    birthDate: datetime
+    associatedAnimals: List[str]
+    password: str
+
+
+@dataclass
+class Tenancy:
+    checkInDate: datetime
+    checkOutDate: datetime
+
+
+@dataclass
+class Critter:
+    name: str
+    ownerEmail: str
+    type: str
+    birthDate: datetime
+    breed: str = ""
+    neutered: bool = False
+    vaccines: dict[str, bool] = field(default_factory=lambda: {})
+    tenancy: Tenancy = None
+    pastTenancy: List[Tenancy] = field(default_factory=lambda: [])

@@ -1,6 +1,6 @@
 import json
 from framework import handlerDecorator, LoggerInstance, notFound, ok
-from user import User
+from models import User
 from db import getUserTable
 from boto3.dynamodb.conditions import Attr
 

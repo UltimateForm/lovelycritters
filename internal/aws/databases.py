@@ -27,9 +27,10 @@ def createDatabases(stack: Stack) -> Databases:
     critter = dynamodb.TableV2(
         stack,
         "critterTable",
-        partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
+        partition_key=dynamodb.Attribute(name="name", type=dynamodb.AttributeType.STRING),
+        sort_key=dynamodb.Attribute(name="ownerEmail", type=dynamodb.AttributeType.STRING),
         removal_policy=RemovalPolicy.DESTROY,
-        table_name="crittersTable",
+        table_name="critterTable",
     )
     databases = Databases(billing=billing, user=user, critter=critter)
     return databases
