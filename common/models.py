@@ -21,9 +21,9 @@ class Tenancy:
 
 @dataclass
 class Critter:
-    name: str
+    petName: str
     ownerEmail: str
-    type: str
+    species: str
     birthDate: datetime
     breed: str = ""
     neutered: bool = False

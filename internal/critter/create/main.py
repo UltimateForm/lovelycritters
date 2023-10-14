@@ -1,5 +1,5 @@
 import json
-from framework import handlerDecorator, LoggerInstance, okCreated
+from framework import conflict, handlerDecorator, LoggerInstance, okCreated
 from models import Critter
 from db import getCritterTable
 
@@ -15,7 +15,15 @@ def rawHandler(event, context, logger: LoggerInstance):
     (dynamodb, table) = getCritterTable()
     critter = Critter(**critterPayload)
     response = None
-    response = table.put_item(Item=critter.__dict__)
+    try:
+        response = table.put_item(Item=critter.__dict__, ConditionExpression="attribute_not_exists(petName) AND attribute_not_exists(ownerEmail)")
+    except dynamodb.meta.client.exceptions.ConditionalCheckFailedException as e:
+        msg = "Failed to create item with petName:ownerEmail {0}:{1} as one already exists".format(
+            critter.petName,
+            critter.ownerEmail
+        )
+        logger.info(msg, {"dbResponse": response, "exception": e.response})
+        return conflict({"errorMessage": msg})
     logger.info("DB responded ctx", {"dbResponse": response})
     logger.info("Created item successfully")
     return okCreated()

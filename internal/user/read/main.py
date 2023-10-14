@@ -1,5 +1,4 @@
 from db import getUserTable
-import json
 from framework import handlerDecorator, LoggerInstance, notFound, ok
 from util import getEmailFromPathParams
 

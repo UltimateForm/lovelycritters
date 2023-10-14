@@ -3,9 +3,6 @@ from framework import conflict, handlerDecorator, LoggerInstance, okCreated
 from models import User
 from db import getUserTable
 
-from datetime import date
-
-
 def rawHandler(event, context, logger: LoggerInstance):
     logger.info(f"Received event {event}")
     userPayload = event["body"]

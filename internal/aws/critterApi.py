@@ -33,6 +33,13 @@ def createCritterApi(
         function_name="lc-internal-readCritter",
         **commonFunctionArgs,
     )
+    readCritterByEmailLmbd = PythonFunction(
+        stack,
+        "readByOwner",
+        entry=path.join(basePath, "critter/readByOwner"),
+        function_name="lc-internal-readByOwner",
+        **commonFunctionArgs,
+    )
     updateCritterLmbd = PythonFunction(
         stack,
         "updateCritter",
@@ -48,14 +55,21 @@ def createCritterApi(
         **commonFunctionArgs,
     )
     dbs.critter.grant_read_data(readCritterLmbd)
+    dbs.critter.grant_read_data(readCritterByEmailLmbd)
     dbs.critter.grant_write_data(createCritterLmbd)
     dbs.critter.grant_write_data(deleteCritterLmbd)
     dbs.critter.grant_write_data(updateCritterLmbd)
     critterApi = api.root.add_resource("critter")
-    critterApiEmailPathed = critterApi.add_resource("{ownerEmail}").add_resource(
-        "{name}"
-    )
+    critterApiEmailPathed = critterApi.add_resource("{ownerEmail}")
+    critterApiFullPathed = critterApiEmailPathed.add_resource("{petName}")
     critterApiEmailPathed.add_method(
+        "GET",
+        aws_apigateway.LambdaIntegration(
+            readCritterByEmailLmbd,
+            request_templates={"application/json": '{"statusCode": "200"}'},
+        ),
+    )
+    critterApiFullPathed.add_method(
         "GET",
         aws_apigateway.LambdaIntegration(
             readCritterLmbd,
@@ -69,14 +83,14 @@ def createCritterApi(
             request_templates={"application/json": '{"statusCode": "201"}'},
         ),
     )
-    critterApiEmailPathed.add_method(
+    critterApiFullPathed.add_method(
         "DELETE",
         aws_apigateway.LambdaIntegration(
             deleteCritterLmbd,
             request_templates={"application/json": '{"statusCode": "204"}'},
         ),
     )
-    critterApiEmailPathed.add_method(
+    critterApiFullPathed.add_method(
         "PUT",
         aws_apigateway.LambdaIntegration(
             updateCritterLmbd,
