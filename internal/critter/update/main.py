@@ -20,7 +20,10 @@ def rawHandler(event, context, logger: LoggerInstance):
     dbResponse = None
     try:
         dbResponse = table.update_item(
-            Key={"petName": critterName, "ownerEmail": critterOwnerEmail},
+            Key={
+                "ownerEmail": critterOwnerEmail,
+                "petName": critterName,
+            },
             UpdateExpression="set birthDate=:bd, breed=:br, neutered=:ne, pastTenancy=:pt, species=:sp, vaccines=:vc",
             ExpressionAttributeValues={
                 ":bd": critter.birthDate,

@@ -11,7 +11,10 @@ def rawHandler(event, context, logger: LoggerInstance):
         {"critterInput": {"ownerEmail": critterOwnerEmail, "petName": critterName}}
     )
     response = table.get_item(
-        Key={"petName": critterName, "ownerEmail": critterOwnerEmail}
+        Key={
+            "ownerEmail": critterOwnerEmail,
+            "petName": critterName,
+        }
     )
     logger.addCtxItem("dbResponse", response)
     if "Item" not in response:

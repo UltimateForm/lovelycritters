@@ -30,3 +30,21 @@ class Critter:
     vaccines: dict[str, bool] = field(default_factory=lambda: {})
     tenancy: Tenancy = None
     pastTenancy: List[Tenancy] = field(default_factory=lambda: [])
+
+
+@dataclass
+class BillingProduct:
+    petName:str
+    tenancy:List[Tenancy]
+
+@dataclass
+class BillingDescriptor:
+    total:float
+    taxesIncluded:List[float]
+
+@dataclass
+class BillingStatement:
+    userEmail:str
+    billingId:int
+    billed:List[BillingProduct]
+    descriptor:BillingDescriptor

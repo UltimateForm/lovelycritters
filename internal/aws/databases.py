@@ -13,7 +13,8 @@ def createDatabases(stack: Stack) -> Databases:
     billing = dynamodb.TableV2(
         stack,
         "billingTable",
-        partition_key=dynamodb.Attribute(name="id", type=dynamodb.AttributeType.STRING),
+        partition_key=dynamodb.Attribute(name="userEmail", type=dynamodb.AttributeType.STRING),
+        sort_key=dynamodb.Attribute(name="billingId", type=dynamodb.AttributeType.STRING),
         removal_policy=RemovalPolicy.DESTROY,
         table_name="billingTable",
     )
@@ -30,21 +31,11 @@ def createDatabases(stack: Stack) -> Databases:
         stack,
         "critterTable",
         partition_key=dynamodb.Attribute(
-            name="petName", type=dynamodb.AttributeType.STRING
-        ),
-        sort_key=dynamodb.Attribute(
             name="ownerEmail", type=dynamodb.AttributeType.STRING
         ),
+        sort_key=dynamodb.Attribute(name="petName", type=dynamodb.AttributeType.STRING),
         removal_policy=RemovalPolicy.DESTROY,
         table_name="critterTable",
-        global_secondary_indexes=[
-            dynamodb.GlobalSecondaryIndexPropsV2(
-                index_name="ownerEmailIndex",
-                partition_key=dynamodb.Attribute(
-                    name="ownerEmail", type=dynamodb.AttributeType.STRING
-                ),
-            )
-        ],
     )
     databases = Databases(billing=billing, user=user, critter=critter)
     return databases

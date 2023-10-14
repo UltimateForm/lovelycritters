@@ -10,10 +10,15 @@ def rawHandler(event, _, logger: LoggerInstance):
     logger.addCtx(
         {"critterInput": {"ownerEmail": critterOwnerEmail, "petName": critterName}}
     )
-    logger.info(f"Deleting critter with petName:email  {critterName}:{critterOwnerEmail}")
+    logger.info(
+        f"Deleting critter with petName:email  {critterName}:{critterOwnerEmail}"
+    )
     deletion = None
     deletion = table.delete_item(
-        Key={"petName": critterName, "ownerEmail": critterOwnerEmail}
+        Key={
+            "ownerEmail": critterOwnerEmail,
+            "petName": critterName,
+        }
     )
     logger.addCtxItem("dbResponse", deletion)
     logger.info(f"Deleted critter {critterName}:{critterOwnerEmail}")
