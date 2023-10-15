@@ -16,11 +16,11 @@ def rawHandler(event, context, logger: LoggerInstance):
     critter = Critter(**critterPayload)
     response = None
     try:
-        response = table.put_item(Item=critter.__dict__, ConditionExpression="attribute_not_exists(petName) AND attribute_not_exists(ownerEmail)")
+        response = table.put_item(Item=critter.__dict__, ConditionExpression="attribute_not_exists(petName) AND attribute_not_exists(email)")
     except dynamodb.meta.client.exceptions.ConditionalCheckFailedException as e:
-        msg = "Failed to create item with petName:ownerEmail {0}:{1} as one already exists".format(
+        msg = "Failed to create item with petName:email {0}:{1} as one already exists".format(
             critter.petName,
-            critter.ownerEmail
+            critter.email
         )
         logger.info(msg, {"dbResponse": response, "exception": e.response})
         return conflict({"errorMessage": msg})

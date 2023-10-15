@@ -2,6 +2,10 @@ import datetime
 from typing import List
 from dataclasses import dataclass, field
 from typing import Optional
+import uuid
+from decimal import Decimal
+
+from util import dictWithoutKey
 
 
 @dataclass
@@ -22,7 +26,7 @@ class Tenancy:
 @dataclass
 class Critter:
     petName: str
-    ownerEmail: str
+    email: str
     species: str
     birthDate: datetime
     breed: str = ""
@@ -34,17 +38,64 @@ class Critter:
 
 @dataclass
 class BillingProduct:
-    petName:str
-    tenancy:List[Tenancy]
+    petName: str
+    tenancy: Tenancy
+
+
+def isNumber(source: str):
+    withoutDot = source.replace(".", "", 1)
+    withoutMinus = withoutDot.replace("-", "", 1)
+    return withoutMinus.isnumeric()
+
 
 @dataclass
 class BillingDescriptor:
-    total:float
-    taxesIncluded:List[float]
+    total: Decimal
+    valuePerDay: Decimal
+    taxesIncluded: List[Decimal]
+
+    def __post_init__(self):
+        errors: List[str] = []
+        if not isNumber(self.total):
+            errors.append("BillingDescriptor.total: is not a numeric value")
+        if not isNumber(self.valuePerDay):
+            errors.append("BillingDescriptor.valuePerDay: is not a numeric value")
+        if any(not isNumber(tax) for tax in self.taxesIncluded):
+            errors.append(
+                "BillingDescriptor.taxesIncluded: one or more items is not a numeric value"
+            )
+        if any(errors):
+            raise Exception(";\n".join(errors))
+
 
 @dataclass
 class BillingStatement:
-    userEmail:str
-    billingId:int
-    billed:List[BillingProduct]
-    descriptor:BillingDescriptor
+    email: str
+    billingId: str = field(init=False)
+    timestamp: Decimal
+    billed: List[BillingProduct]
+    descriptor: BillingDescriptor
+
+    @classmethod
+    def fromDict(cls, d: dict):
+        billedDictList = d.get("billed")
+        billedProductList: List[BillingProduct] = []
+        [
+            billedProductList.append(BillingProduct(**billedDict))
+            for billedDict in billedDictList
+        ]
+        descriptorDict = d.get("descriptor")
+        descriptor: BillingDescriptor = (
+            BillingDescriptor(**descriptorDict) if descriptorDict is not None else None
+        )
+        sanitizedSourceDict = dictWithoutKey(d, "descriptor", "billed")
+        return BillingStatement(
+            **sanitizedSourceDict, billed=billedProductList, descriptor=descriptor
+        )
+
+    def __post_init__(self):
+        self.billingId = str(uuid.uuid4())
+    
+    def toDict(self):
+        tbd
+

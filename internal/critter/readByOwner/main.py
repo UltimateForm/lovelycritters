@@ -6,10 +6,10 @@ from boto3.dynamodb.conditions import Key
 
 def rawHandler(event, context, logger: LoggerInstance):
     (dynamodb, table) = getCritterTable()
-    critterOwnerEmail = getElementFromParams("ownerEmail", event)
-    logger.addCtx({"critterInput": {"ownerEmail": critterOwnerEmail}})
+    critterOwnerEmail = getElementFromParams("email", event)
+    logger.addCtx({"critterInput": {"email": critterOwnerEmail}})
     response = table.query(
-        KeyConditionExpression=Key("ownerEmail").eq(critterOwnerEmail)
+        KeyConditionExpression=Key("email").eq(critterOwnerEmail)
     )
     logger.addCtxItem("dbResponse", response)
     if "Items" not in response:

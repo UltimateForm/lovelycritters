@@ -7,7 +7,7 @@ from util import getElementFromParams
 
 
 def rawHandler(event, context, logger: LoggerInstance):
-    critterOwnerEmail = getElementFromParams("ownerEmail", event)
+    critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
     critterPayload = event["body"]
     if isinstance(critterPayload, str):
@@ -15,13 +15,13 @@ def rawHandler(event, context, logger: LoggerInstance):
         critterPayload = json.loads(critterPayload)
     (dynamodb, table) = getCritterTable()
     critter = Critter(
-        petName=critterName, ownerEmail=critterOwnerEmail, **critterPayload
+        petName=critterName, email=critterOwnerEmail, **critterPayload
     )
     dbResponse = None
     try:
         dbResponse = table.update_item(
             Key={
-                "ownerEmail": critterOwnerEmail,
+                "email": critterOwnerEmail,
                 "petName": critterName,
             },
             UpdateExpression="set birthDate=:bd, breed=:br, neutered=:ne, pastTenancy=:pt, species=:sp, vaccines=:vc",
@@ -34,10 +34,10 @@ def rawHandler(event, context, logger: LoggerInstance):
                 ":vc": critter.vaccines,
             },
             ReturnValues="UPDATED_NEW",
-            ConditionExpression="attribute_exists(petName) AND attribute_exists(ownerEmail)",
+            ConditionExpression="attribute_exists(petName) AND attribute_exists(email)",
         )
     except dynamodb.meta.client.exceptions.ConditionalCheckFailedException as e:
-        msg = f"No critter with petName:ownerEmail {critterName}:{critterOwnerEmail} found"
+        msg = f"No critter with petName:email {critterName}:{critterOwnerEmail} found"
         logger.info(msg, {"dbResponse": dbResponse, "exception": e.response})
         return notFound({"errorMesssage": msg})
 

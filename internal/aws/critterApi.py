@@ -60,7 +60,7 @@ def createCritterApi(
     dbs.critter.grant_write_data(deleteCritterLmbd)
     dbs.critter.grant_write_data(updateCritterLmbd)
     critterApi = api.root.add_resource("critter")
-    critterApiEmailPathed = critterApi.add_resource("{ownerEmail}")
+    critterApiEmailPathed = critterApi.add_resource("{email}")
     critterApiFullPathed = critterApiEmailPathed.add_resource("{petName}")
     critterApiEmailPathed.add_method(
         "GET",

@@ -5,14 +5,14 @@ from util import getElementFromParams
 
 def rawHandler(event, context, logger: LoggerInstance):
     (dynamodb, table) = getCritterTable()
-    critterOwnerEmail = getElementFromParams("ownerEmail", event)
+    critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
     logger.addCtx(
-        {"critterInput": {"ownerEmail": critterOwnerEmail, "petName": critterName}}
+        {"critterInput": {"email": critterOwnerEmail, "petName": critterName}}
     )
     response = table.get_item(
         Key={
-            "ownerEmail": critterOwnerEmail,
+            "email": critterOwnerEmail,
             "petName": critterName,
         }
     )
@@ -21,7 +21,7 @@ def rawHandler(event, context, logger: LoggerInstance):
         logger.info("Could not find critter")
         return notFound(
             {
-                "errorMessage": f"No critter with petName:ownerEmail {critterName}:{critterOwnerEmail} found"
+                "errorMessage": f"No critter with petName:email {critterName}:{critterOwnerEmail} found"
             }
         )
 

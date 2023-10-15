@@ -1,6 +1,7 @@
 from typing import Callable, Any
 import json
 import logging
+from decimal import Decimal
 
 
 def initLoggerConfig():

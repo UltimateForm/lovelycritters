@@ -13,3 +13,7 @@ def getUserTable():
 def getCritterTable():
 	tableName = os.environ["CRITTER_TABLE_NAME"]
 	return getTable(tableName)
+
+def getBillingTable():
+    tableName = os.environ["BILLING_TABLE_NAME"]
+    return getTable(tableName)

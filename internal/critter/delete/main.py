@@ -5,10 +5,10 @@ from util import getElementFromParams
 
 def rawHandler(event, _, logger: LoggerInstance):
     (dynamodb, table) = getCritterTable()
-    critterOwnerEmail = getElementFromParams("ownerEmail", event)
+    critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
     logger.addCtx(
-        {"critterInput": {"ownerEmail": critterOwnerEmail, "petName": critterName}}
+        {"critterInput": {"email": critterOwnerEmail, "petName": critterName}}
     )
     logger.info(
         f"Deleting critter with petName:email  {critterName}:{critterOwnerEmail}"
@@ -16,7 +16,7 @@ def rawHandler(event, _, logger: LoggerInstance):
     deletion = None
     deletion = table.delete_item(
         Key={
-            "ownerEmail": critterOwnerEmail,
+            "email": critterOwnerEmail,
             "petName": critterName,
         }
     )

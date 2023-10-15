@@ -12,6 +12,7 @@ from aws_cdk import (
 from .databases import createDatabases
 from .userApi import createUserApi
 from .critterApi import createCritterApi
+from .billingApi import createBillingApi
 from aws_cdk.aws_lambda_python_alpha import PythonFunction, PythonLayerVersion
 from os import path, getcwd, environ
 from constructs import Construct
@@ -45,6 +46,7 @@ class LC_InternalStack(Stack):
         )
         createUserApi(self, runtime, pythonLayer, dbs, basePath, jwtSecretParam, api)
         createCritterApi(self, runtime, pythonLayer, dbs, basePath, api)
+        createBillingApi(self, runtime, pythonLayer, dbs, basePath, api)
         throttleSettings = aws_apigateway.ThrottleSettings(
             rate_limit=10, burst_limit=10
         )
