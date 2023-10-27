@@ -1,5 +1,5 @@
 import json
-from framework import handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
 from models import User
 from db import getUserTable
 from boto3.dynamodb.conditions import Attr
@@ -7,7 +7,7 @@ from boto3.dynamodb.conditions import Attr
 from util import getEmailFromPathParams
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     userEmail = getEmailFromPathParams(event)
     userPayload = event["body"]
     if isinstance(userPayload, str):

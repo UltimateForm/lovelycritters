@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 JWT_SECRET = os.environ.get("JWT_SECRET")
 
 
-def rawHandler(event, _, logger: LoggerInstance):
+def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getUserTable()
     authPayload = event["body"]
     if isinstance(authPayload, str):

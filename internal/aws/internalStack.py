@@ -62,5 +62,10 @@ class LC_InternalStack(Stack):
         )
         apiKey = api.add_api_key(id="internalApiKey", api_key_name="Main API Key")
         usagePlan.add_api_key(apiKey)
-        CfnOutput(self, "internalApi", value=api.url)
-        CfnOutput(self, "internalAPIKey", value=apiKey.key_id)
+        CfnOutput(self, "internalApiUrl", value=api.url, export_name="internalApiUrl")
+        CfnOutput(
+            self,
+            "internalAPIKeyId",
+            value=apiKey.key_id,
+            export_name="internalAPIKeyId",
+        )

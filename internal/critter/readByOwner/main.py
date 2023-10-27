@@ -1,10 +1,10 @@
 from db import getCritterTable
-from framework import handlerDecorator, LoggerInstance, ok
+from framework import HttpClient, handlerDecorator, LoggerInstance, ok
 from util import getElementFromParams
 from boto3.dynamodb.conditions import Key
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     (dynamodb, table) = getCritterTable()
     critterOwnerEmail = getElementFromParams("email", event)
     logger.addCtx({"critterInput": {"email": critterOwnerEmail}})

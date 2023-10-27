@@ -9,15 +9,6 @@ from util import dictWithoutKey
 
 
 @dataclass
-class User:
-    email: str
-    name: str
-    birthDate: datetime
-    associatedAnimals: List[str]
-    password: str
-
-
-@dataclass
 class Tenancy:
     checkInDate: datetime
     checkOutDate: datetime
@@ -34,6 +25,19 @@ class Critter:
     vaccines: dict[str, bool] = field(default_factory=lambda: {})
     tenancy: Tenancy = None
     pastTenancy: List[Tenancy] = field(default_factory=lambda: [])
+
+
+@dataclass
+class User:
+    email: str
+    name: str
+    birthDate: datetime
+    associatedAnimals: List[str]
+    password: str
+
+
+class ClientUser(User):
+    associatedAnimals: List[Critter]
 
 
 @dataclass
@@ -95,7 +99,6 @@ class BillingStatement:
 
     def __post_init__(self):
         self.billingId = str(uuid.uuid4())
-    
-    def toDict(self):
-        tbd
 
+    # def toDict(self):
+    #     tbd

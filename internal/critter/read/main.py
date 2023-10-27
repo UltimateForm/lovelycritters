@@ -1,9 +1,9 @@
 from db import getCritterTable
-from framework import handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
 from util import getElementFromParams
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     (dynamodb, table) = getCritterTable()
     critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)

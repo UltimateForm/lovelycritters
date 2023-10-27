@@ -1,9 +1,9 @@
 from db import getBillingTable
-from framework import handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
 from util import getElementFromParams
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     (dynamodb, table) = getBillingTable()
     billingEmail = getElementFromParams("email", event)
     billingId = getElementFromParams("billingId", event)

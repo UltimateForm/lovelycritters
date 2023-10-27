@@ -4,7 +4,7 @@ from util import getEmailFromPathParams
 from boto3.dynamodb.conditions import Attr
 
 
-def rawHandler(event, _, logger: LoggerInstance):
+def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getUserTable()
     userEmail = getEmailFromPathParams(event)
     logger.addCtxItem("userEmail", userEmail)

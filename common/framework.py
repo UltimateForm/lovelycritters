@@ -1,7 +1,8 @@
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 import json
 import logging
 from decimal import Decimal
+import requests
 
 
 def initLoggerConfig():
@@ -16,9 +17,19 @@ def initLoggerConfig():
 class LoggerInstance:
     _context: dict[str, Any]
     _logger: logging.Logger
+    _name: str
+    _parent: str
 
-    def __init__(self, context: dict[str, Any] = {}) -> None:
+    def __init__(
+        self, context: dict[str, Any] = {}, name: str = "", parent: str = ""
+    ) -> None:
         self._context = context
+        self._name = name
+        self._parent = parent
+        if name:
+            self._context["loggerName"] = name
+        if parent:
+            self._context["parentLoggerName"] = parent
         self._logger = logging.getLogger()
         pass
 
@@ -45,21 +56,125 @@ class LoggerInstance:
         structedLog = self._prepareLog(msg, ctx)
         self._logger.error(structedLog)
 
+    def critical(self, msg: str, ctx: dict[str, Any] = {}):
+        structedLog = self._prepareLog(msg, ctx)
+        self._logger.critical(structedLog)
+
+    def exception(self, msg: str, ctx: dict[str, Any] = {}):
+        structedLog = self._prepareLog(msg, ctx)
+        self._logger.exception(structedLog, stack_info=True, stacklevel=5)
+
     def debug(self, msg: str, ctx: dict[str, Any] = {}):
         structedLog = self._prepareLog(msg, ctx)
         self._logger.debug(structedLog)
 
+    def branch(self, branchName: str):
+        return LoggerInstance({**self._context}, branchName, self._name)
+
+
+def createResponseLogger(logger: LoggerInstance):
+    def logResponse(r: requests.Response, *args, **kwargs):
+        method = r.request.method
+        statusCode = r.status_code
+        statusCodeTxt = r.reason.replace(" ", "")
+        url = r.url
+        responsePayload = None
+        try:
+            responsePayload = r.json()
+        except:
+            pass
+        requestPayload = (
+            r.request.body.decode() if type(r.request.body) == bytes else r.request.body
+        )
+        requestJson = None
+        if requestPayload:
+            try:
+                requestJson = json.loads(requestPayload)
+            except Exception as e:
+                logger.error(
+                    "Failed to parse original request while writing HTTP event log",
+                    {"error": str(e)},
+                )
+        ellapsedMicroSecs = r.elapsed.microseconds
+        msg = f"HTTP {method} {url} {statusCode} {statusCodeTxt}"
+        ctx = {
+            "requestPayload": requestJson,
+            "responsePayload": responsePayload,
+            "http": {
+                "url": url,
+                "statusCode": statusCode,
+                "statusCodeTxt": statusCodeTxt,
+                "elapsedMicroSecs": ellapsedMicroSecs,
+            },
+        }
+        logger.info(msg, ctx)
+
+    return logResponse
+
+
+class HttpClient:
+    _responseLogger: Callable[[requests.Response, list, dict], Any] = None
+    _logger: LoggerInstance
+
+    def __init__(self, logger: LoggerInstance):
+        self._logger = logger
+        self._responseLogger = createResponseLogger(
+            logger.branch("httpClientResponseLogger")
+        )
+        pass
+
+    def send(
+        self, method: str, url: str, payload: dict | None, headers: dict
+    ) -> requests.Response:
+        # todo: consider adding logs here
+        return requests.request(
+            method=method,
+            url=url,
+            json=payload,
+            headers=headers,
+            hooks={"response": self._responseLogger},
+        )
+
+    def _getJsonFromResponse(self, response: requests.Response):
+        try:
+            jsonRes = response.json()
+            return jsonRes
+        # todo: figure out a way to catch the literal excpetion, it's one from simplejson but i don't want to add that dependency
+        except Exception:
+            return None
+
+    def post(self, url: str, payload: dict, headers: dict):
+        response = self.send("POST", url, payload, headers)
+        responseJson = self._getJsonFromResponse(response)
+        return (response.ok, response.status_code, responseJson)
+
+    def get(self, url: str, payload: dict, headers: dict):
+        response = self.send("GET", url, payload, headers)
+        responseJson = self._getJsonFromResponse(response)
+        return (response.ok, response.status_code, responseJson)
+
+    def put(self, url: str, payload: dict, headers: dict):
+        response = self.send("PUT", url, payload, headers)
+        responseJson = self._getJsonFromResponse(response)
+        return (response.ok, response.status_code, responseJson)
+
+    def delete(self, url: str, payload: dict, headers: dict):
+        response = self.send("DELETE", url, payload, headers)
+        responseJson = self._getJsonFromResponse(response)
+        return (response.ok, response.status_code, responseJson)
+
 
 def handlerDecorator(
-    handler: Callable[[Any, Any, LoggerInstance], dict]
+    handler: Callable[[Any, Any, LoggerInstance, HttpClient, Optional[dict]], dict],
+    laundryMachine: Optional[Callable[[dict], Any]] = None,
 ) -> Callable[[Any, Any], dict]:
-
     def handlerDecorated(event, context):
         logger = LoggerInstance({"loggerName": "framework"})
         initLoggerConfig()
+        resource = event.get("resource")
         logger.addCtx(
             {
-                "Resource": event.get("resource"),
+                "Resource": resource,
                 "Method": event.get("httpMethod"),
                 "Event": event,
             }
@@ -67,12 +182,34 @@ def handlerDecorator(
         logger.info(
             f"INCOMING REQUEST {event.get('httpMethod')} {event.get('resource')}"
         )
+        httpClient = HttpClient(logger.branch(HttpClient.__name__))
         response = {}
+        laundry = {}
         try:
-            response = handler(event, context, logger)
+            response = handler(
+                event,
+                context,
+                logger.branch("handlerFunction"),
+                httpClient,
+                laundry=laundry,
+            )
         except Exception as e:
+            logger.exception(str(e))
             logger.error(f"Error occured while processing request: {str(e)}")
             response = {"statusCode": 500, "body": json.dumps({"errorMessage": str(e)})}
+        responseStatusCode = response.get("statusCode")
+        if (
+            responseStatusCode >= 400 or responseStatusCode < 200
+        ) and laundryMachine is not None:
+            logger.info(
+                f"Per bad status {responseStatusCode} initiating laundry cleanup"
+            )
+            try:
+                laundryMachine(laundry, logger.branch("laundryMachine"), httpClient)
+            except Exception as e:
+                logger.exception(str(e))
+                # Note: good place for alarm example
+                logger.critical(f"ROLLBACK PROCEDURE FAILED FOR {resource}")
         logger.addCtx(
             {"StatusCode": response.get("statusCode"), "Body": response.get("body")}
         )
@@ -108,8 +245,14 @@ def ok(body: dict = None):
 def okCreated(body: dict = None):
     return response(201, body=body)
 
+
 def badRequest(body: dict = None):
     return response(400, body=body)
 
+
 def unauthorized(body: dict = None):
     return response(401, body=body)
+
+
+def internalServerError(body: dict = None):
+    return response(500, body=body)

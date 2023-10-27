@@ -1,12 +1,12 @@
 import json
-from framework import handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
 from models import Critter
 from db import getCritterTable
 
 from util import getElementFromParams
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
     critterPayload = event["body"]

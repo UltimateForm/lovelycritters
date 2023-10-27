@@ -3,7 +3,7 @@ from db import getCritterTable
 from util import getElementFromParams
 
 
-def rawHandler(event, _, logger: LoggerInstance):
+def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getCritterTable()
     critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)

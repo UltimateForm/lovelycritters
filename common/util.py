@@ -17,3 +17,8 @@ def dictWithoutKey(d:dict, *args:str) -> dict:
     newDict = d.copy()
     [newDict.pop(key) for key in args]
     return newDict
+
+def joinUrl(*args:str):
+    partsNormal = [url.rstrip("/").lstrip("/") for url in args]
+    joinedUrl = "/".join(partsNormal)
+    return joinedUrl

@@ -1,10 +1,10 @@
 import json
-from framework import conflict, handlerDecorator, LoggerInstance, okCreated
+from framework import HttpClient, conflict, handlerDecorator, LoggerInstance, okCreated
 from models import BillingStatement
 from db import getBillingTable
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     logger.info(f"Received event {event}")
     billingPayload = event["body"]
     if isinstance(billingPayload, str):

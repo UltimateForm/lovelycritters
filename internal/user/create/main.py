@@ -1,9 +1,9 @@
 import json
-from framework import conflict, handlerDecorator, LoggerInstance, okCreated
+from framework import HttpClient, conflict, handlerDecorator, LoggerInstance, okCreated
 from models import User
 from db import getUserTable
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     logger.info(f"Received event {event}")
     userPayload = event["body"]
     if isinstance(userPayload, str):

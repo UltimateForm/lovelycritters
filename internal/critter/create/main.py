@@ -1,12 +1,12 @@
 import json
-from framework import conflict, handlerDecorator, LoggerInstance, okCreated
+from framework import HttpClient, conflict, handlerDecorator, LoggerInstance, okCreated
 from models import Critter
 from db import getCritterTable
 
 from datetime import date
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     logger.info(f"Received event {event}")
     critterPayload = event["body"]
     if isinstance(critterPayload, str):

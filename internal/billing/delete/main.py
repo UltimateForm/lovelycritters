@@ -3,13 +3,11 @@ from db import getBillingTable
 from util import getElementFromParams
 
 
-def rawHandler(event, _, logger: LoggerInstance):
+def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getBillingTable()
     billingUserEmail = getElementFromParams("email", event)
     billingId = getElementFromParams("billingId", event)
-    logger.addCtx(
-        {"billingInput": {"email": billingUserEmail, "billingId": billingId}}
-    )
+    logger.addCtx({"billingInput": {"email": billingUserEmail, "billingId": billingId}})
     logger.info(
         f"Deleting billing statement wit id {billingId} for user {billingUserEmail}"
     )

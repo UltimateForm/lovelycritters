@@ -1,9 +1,9 @@
 from db import getUserTable
-from framework import handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
 from util import getEmailFromPathParams
 
 
-def rawHandler(event, context, logger: LoggerInstance):
+def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     (dynamodb, table) = getUserTable()
     userEmail = getEmailFromPathParams(event)
     logger.addCtxItem("userEmail", userEmail)
