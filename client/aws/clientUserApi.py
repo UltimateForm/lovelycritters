@@ -15,7 +15,7 @@ def createUserApi(
         "runtime": runtime,
         "index": "main.py",
         "handler": "handler",
-        "environment": {"INTERNAL_API_URL": internalApiUrl},
+        "environment": {"INTERNAL_API_URL": internalApiUrl, "INTERNAL_API_KEY": ""},
         "timeout": Duration.seconds(30),
         "layers": [pythonLayer],
     }

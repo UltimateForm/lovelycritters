@@ -3,6 +3,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[scripts]
+start = "sudo sam local start-api -t ./cdk.out/LovelyCritters-ClientStack.template.json -n ./.env.json"
+synth = "sudo cdk synth"
+start-fresh = "bash -c 'pipenv run synth && pipenv run start'"
+deploy = "sudo cdk deploy --all"
+
+
 [packages]
 aws-cdk-lib = "==2.99.1"
 constructs = "<11.0.0,>=10.0.0"

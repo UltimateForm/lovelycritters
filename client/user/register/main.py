@@ -17,10 +17,11 @@ def deleteCreatedCritters(
     critterNames: List[str],
     userEmail: str,
     url: str,
+    apiKey:str,
     httpClient: HttpClient,
     logger: LoggerInstance,
 ):
-    commonHeaders = {"x-api-key": "API_KEY"}
+    commonHeaders = {"x-api-key": apiKey}
     logger.info(
         "Deleting critteras as part failure cleanup", {"crittersToDelete": critterNames}
     )
@@ -61,13 +62,13 @@ class CreateCritterException(Exception):
 
 def createCritters(
     critters: List[Critter],
-    userEmail: str,
     apiUrl: str,
+    apiKey:str,
     httpClient: HttpClient,
     logger: LoggerInstance,
 ) -> List[str]:
     createdCritters: List[str] = []
-    commonHeaders = {"x-api-key": "API_KEY"}
+    commonHeaders = {"x-api-key": apiKey}
     for critter in critters:
         logger.info(f"Creating critter {critter}")
         try:
@@ -103,6 +104,7 @@ def rollback(laundry: dict, logger: LoggerInstance, httpClient: HttpClient):
     userEmail = laundry.get("userEmail")
     critters = laundry.get("critters")
     internalApiUrl = os.environ.get("INTERNAL_API_URL")
+    internalApiKey = os.environ.get("INTERNAL_API_KEY")
     critterApiUrl = joinUrl(internalApiUrl, "critter")
     if (
         userEmail == None
@@ -116,6 +118,7 @@ def rollback(laundry: dict, logger: LoggerInstance, httpClient: HttpClient):
         critterNames=critters,
         userEmail=userEmail,
         url=critterApiUrl,
+        apiKey=internalApiKey,
         httpClient=httpClient,
         logger=logger,
     )
@@ -131,6 +134,8 @@ def rawHandler(
         logger.info(f"Received user of type str, deserialzing")
         userPayload = json.loads(userPayload)
     internalApiUrl = os.environ.get("INTERNAL_API_URL")
+    internalApiKey = os.environ.get("INTERNAL_API_KEY")
+    logger.info(f"HERES MY API KEY {internalApiKey}")
     userApiUrl = joinUrl(internalApiUrl, "user")
     critterApiUrl = joinUrl(internalApiUrl, "critter")
     logger.info(f"createUserUrl {userApiUrl}")
@@ -144,8 +149,8 @@ def rawHandler(
     try:
         createdCritters = createCritters(
             critters,
-            user.email,
             critterApiUrl,
+            internalApiKey,
             httpClient,
             logger.branch("critterCreationForUserCreation"),
         )
@@ -166,7 +171,7 @@ def rawHandler(
     (ok, statusCode, data) = httpClient.post(
         userApiUrl,
         internalUserPayload.__dict__,
-        {"x-api-key": "API_KEY"},
+        {"x-api-key": internalApiKey},
     )
     if ok:
         return okNoData()

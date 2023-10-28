@@ -3,6 +3,7 @@ import json
 import logging
 from decimal import Decimal
 import requests
+import os
 
 
 def initLoggerConfig():
@@ -19,13 +20,19 @@ class LoggerInstance:
     _logger: logging.Logger
     _name: str
     _parent: str
+    _primitiveLogging: bool
 
     def __init__(
-        self, context: dict[str, Any] = {}, name: str = "", parent: str = ""
+        self,
+        context: dict[str, Any] = {},
+        name: str = "",
+        parent: str = "",
+        primitiveLogging=False,
     ) -> None:
         self._context = context
         self._name = name
         self._parent = parent
+        self._primitiveLogging: bool = primitiveLogging
         if name:
             self._context["loggerName"] = name
         if parent:
@@ -40,6 +47,8 @@ class LoggerInstance:
         self._context.update([(key, data[key]) for key in data.keys()])
 
     def _prepareLog(self, msg: str, ctx: dict[str, Any] = {}) -> str:
+        if self._primitiveLogging:
+            return msg
         combinedDict = {**self._context, **ctx, "message": msg}
         jsonLog = json.dumps(combinedDict)
         return jsonLog
@@ -69,7 +78,7 @@ class LoggerInstance:
         self._logger.debug(structedLog)
 
     def branch(self, branchName: str):
-        return LoggerInstance({**self._context}, branchName, self._name)
+        return LoggerInstance({**self._context}, branchName, self._name, self._primitiveLogging)
 
 
 def createResponseLogger(logger: LoggerInstance):
@@ -169,7 +178,10 @@ def handlerDecorator(
     laundryMachine: Optional[Callable[[dict], Any]] = None,
 ) -> Callable[[Any, Any], dict]:
     def handlerDecorated(event, context):
-        logger = LoggerInstance({"loggerName": "framework"})
+        awsSamLocal = os.environ.get("AWS_SAM_LOCAL")
+        logger = LoggerInstance(
+            {}, "framework", "", primitiveLogging=awsSamLocal == "true"
+        )
         initLoggerConfig()
         resource = event.get("resource")
         logger.addCtx(
