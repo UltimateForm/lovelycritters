@@ -8,16 +8,16 @@ from framework import (
     response,
 )
 from util import joinUrl, dictWithoutKey
-import os
 from models import ClientUser, Critter, User
 from typing import List
+from util import getInternalApi
 
 
 def deleteCreatedCritters(
     critterNames: List[str],
     userEmail: str,
     url: str,
-    apiKey:str,
+    apiKey: str,
     httpClient: HttpClient,
     logger: LoggerInstance,
 ):
@@ -63,7 +63,7 @@ class CreateCritterException(Exception):
 def createCritters(
     critters: List[Critter],
     apiUrl: str,
-    apiKey:str,
+    apiKey: str,
     httpClient: HttpClient,
     logger: LoggerInstance,
 ) -> List[str]:
@@ -128,14 +128,12 @@ def rollback(laundry: dict, logger: LoggerInstance, httpClient: HttpClient):
 def rawHandler(
     event, context, logger: LoggerInstance, httpClient: HttpClient, laundry: dict
 ):
-    logger.info(f"Received event {event}")
+    # todo: check wether user exists or not before creating critters for no reason
     userPayload = event["body"]
     if isinstance(userPayload, str):
         logger.info(f"Received user of type str, deserialzing")
         userPayload = json.loads(userPayload)
-    internalApiUrl = os.environ.get("INTERNAL_API_URL")
-    internalApiKey = os.environ.get("INTERNAL_API_KEY")
-    logger.info(f"HERES MY API KEY {internalApiKey}")
+    (internalApiUrl, internalApiKey) = getInternalApi()
     userApiUrl = joinUrl(internalApiUrl, "user")
     critterApiUrl = joinUrl(internalApiUrl, "critter")
     logger.info(f"createUserUrl {userApiUrl}")

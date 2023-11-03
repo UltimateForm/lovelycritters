@@ -26,11 +26,25 @@ def createUserApi(
         function_name="lc-client-registerUser",
         **commonFunctionArgs,
     )
+    loginUserLmbd = PythonFunction(
+        stack,
+        "loginUser",
+        entry=path.join(basePath, "user/login"),
+        function_name="lc-client-loginUser",
+        **commonFunctionArgs,
+    )
     userApi = api.root.add_resource("user")
     userApi.add_resource("register").add_method(
         "POST",
         aws_apigateway.LambdaIntegration(
             registerUserLmbd,
+            request_templates={"application/json": '{"statusCode": "200"}'},
+        ),
+    )
+    userApi.add_resource("login").add_method(
+        "POST",
+        aws_apigateway.LambdaIntegration(
+            loginUserLmbd,
             request_templates={"application/json": '{"statusCode": "200"}'},
         ),
     )

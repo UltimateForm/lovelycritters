@@ -11,7 +11,7 @@ JWT_SECRET = os.environ.get("JWT_SECRET")
 
 def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getUserTable()
-    authPayload = event["body"]
+    authPayload = event["body"] or {}
     if isinstance(authPayload, str):
         logger.info(f"Received authPayload of type str, deserialzing")
         authPayload = json.loads(authPayload)

@@ -22,3 +22,9 @@ def joinUrl(*args:str):
     partsNormal = [url.rstrip("/").lstrip("/") for url in args]
     joinedUrl = "/".join(partsNormal)
     return joinedUrl
+
+def getInternalApi():
+    import os
+    internalApiUrl = os.environ.get("INTERNAL_API_URL")
+    internalApiKey = os.environ.get("INTERNAL_API_KEY")
+    return (internalApiUrl, internalApiKey)
