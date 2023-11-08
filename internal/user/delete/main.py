@@ -1,4 +1,4 @@
-from framework import handlerDecorator, LoggerInstance, okNoData, notFound
+from framework import httpHandlerDecorator, LoggerInstance, okNoData, notFound
 from db import getUserTable
 from util import getEmailFromPathParams
 from boto3.dynamodb.conditions import Attr
@@ -24,4 +24,4 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     return okNoData()
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

@@ -1,5 +1,5 @@
 import json
-from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, httpHandlerDecorator, LoggerInstance, notFound, ok
 from models import User
 from db import getUserTable
 from boto3.dynamodb.conditions import Attr
@@ -43,4 +43,4 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
     return ok(updatedUser)
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

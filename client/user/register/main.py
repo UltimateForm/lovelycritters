@@ -1,6 +1,6 @@
 import json
 from framework import (
-    handlerDecorator,
+    httpHandlerDecorator,
     LoggerInstance,
     ok,
     okNoData,
@@ -177,4 +177,4 @@ def rawHandler(
         return response(statusCode, body={**data, "source": "outbound"})
 
 
-handler = handlerDecorator(handler=rawHandler, laundryMachine=rollback)
+handler = httpHandlerDecorator(handler=rawHandler, laundryMachine=rollback)

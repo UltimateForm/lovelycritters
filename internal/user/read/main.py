@@ -1,5 +1,5 @@
 from db import getUserTable
-from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, httpHandlerDecorator, LoggerInstance, notFound, ok
 from util import getEmailFromPathParams
 
 
@@ -18,4 +18,4 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
     return ok(user)
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

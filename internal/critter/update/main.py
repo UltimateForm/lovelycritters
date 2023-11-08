@@ -1,5 +1,5 @@
 import json
-from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, httpHandlerDecorator, LoggerInstance, notFound, ok
 from models import Critter
 from db import getCritterTable
 
@@ -47,4 +47,4 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
     return ok(updatedCritter)
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

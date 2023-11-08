@@ -1,4 +1,4 @@
-from framework import handlerDecorator, LoggerInstance, okNoData
+from framework import httpHandlerDecorator, LoggerInstance, okNoData
 from db import getCritterTable
 from util import getElementFromParams
 
@@ -25,4 +25,4 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     return okNoData()
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

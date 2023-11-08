@@ -173,7 +173,7 @@ class HttpClient:
         return (response.ok, response.status_code, responseJson)
 
 
-def handlerDecorator(
+def httpHandlerDecorator(
     handler: Callable[[Any, Any, LoggerInstance, HttpClient, Optional[dict]], dict],
     laundryMachine: Optional[Callable[[dict], Any]] = None,
 ) -> Callable[[Any, Any], dict]:
@@ -230,6 +230,41 @@ def handlerDecorator(
 
     return handlerDecorated
 
+def handlerDecorator(
+    handler: Callable[[Any, Any, LoggerInstance], dict],
+    methodName: str
+) -> Callable[[Any, Any], dict]:
+    def handlerDecorated(event, context):
+        awsSamLocal = os.environ.get("AWS_SAM_LOCAL")
+        logger = LoggerInstance(
+            {}, "framework", "", primitiveLogging=awsSamLocal == "true"
+        )
+        initLoggerConfig()
+        resource = methodName
+        logger.addCtx(
+            {
+                "Resource": resource,
+                "Event": event,
+            }
+        )
+        logger.info(
+            f"INCOMING REQUEST {resource}"
+        )
+        response = {}
+        try:
+            response = handler(
+                event,
+                context,
+                logger.branch("handlerFunction"),
+            )
+        except Exception as e:
+            logger.exception(str(e))
+            logger.error(f"Error occured while running handler: {str(e)}")
+            response = str(e)
+        logger.info(f"OUTGOING RESPONSE {response}")
+        return response
+
+    return handlerDecorated
 
 def response(statusCode: int, body: dict = None):
     response = {"statusCode": statusCode}

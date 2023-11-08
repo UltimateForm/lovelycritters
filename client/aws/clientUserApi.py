@@ -5,20 +5,10 @@ from os import path
 
 def createUserApi(
     stack: Stack,
-    runtime: aws_lambda.Runtime,
-    pythonLayer: PythonLayerVersion,
+    commonFunctionArgs: aws_lambda.Runtime,
     basePath: str,
     api: aws_apigateway.RestApi,
-    internalApiUrl: str,
 ):
-    commonFunctionArgs = {
-        "runtime": runtime,
-        "index": "main.py",
-        "handler": "handler",
-        "environment": {"INTERNAL_API_URL": internalApiUrl, "INTERNAL_API_KEY": ""},
-        "timeout": Duration.seconds(30),
-        "layers": [pythonLayer],
-    }
     registerUserLmbd = PythonFunction(
         stack,
         "registerUser",

@@ -1,5 +1,5 @@
 from db import getBillingTable
-from framework import HttpClient, handlerDecorator, LoggerInstance, ok
+from framework import HttpClient, httpHandlerDecorator, LoggerInstance, ok
 from util import getElementFromParams
 from boto3.dynamodb.conditions import Key
 
@@ -19,4 +19,4 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
     return ok({"statements": statements, "count": count})
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

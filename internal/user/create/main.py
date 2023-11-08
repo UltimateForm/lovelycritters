@@ -1,5 +1,5 @@
 import json
-from framework import HttpClient, conflict, handlerDecorator, LoggerInstance, okCreated
+from framework import HttpClient, conflict, httpHandlerDecorator, LoggerInstance, okCreated
 from models import User
 from db import getUserTable
 
@@ -28,4 +28,4 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
     return okCreated()
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

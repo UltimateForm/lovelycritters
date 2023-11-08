@@ -56,7 +56,7 @@ testEvent = {
 
 class HandlerDecorator(unittest.TestCase):
     def test_withoutLaundry(self):
-        decorator = f.handlerDecorator
+        decorator = f.httpHandlerDecorator
 
         def handlerRaw(
             event, context, logger: f.LoggerInstance, httpClient: f.HttpClient, **kwargs
@@ -69,7 +69,7 @@ class HandlerDecorator(unittest.TestCase):
         self.assertEqual(statusCode, 500)
 
     def test_laundryMachine(self):
-        decorator = f.handlerDecorator
+        decorator = f.httpHandlerDecorator
         laundryMachine = mock.Mock()
 
         def handlerRaw(

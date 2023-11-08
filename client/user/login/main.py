@@ -2,7 +2,7 @@ import json
 from framework import (
     HttpClient,
     LoggerInstance,
-    handlerDecorator,
+    httpHandlerDecorator,
     badRequest,
     ok,
     response,
@@ -32,4 +32,4 @@ def handlerRaw(
     return ok(data)
 
 
-handler = handlerDecorator(handlerRaw)
+handler = httpHandlerDecorator(handlerRaw)

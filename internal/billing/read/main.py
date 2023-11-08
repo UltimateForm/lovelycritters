@@ -1,5 +1,5 @@
 from db import getBillingTable
-from framework import HttpClient, handlerDecorator, LoggerInstance, notFound, ok
+from framework import HttpClient, httpHandlerDecorator, LoggerInstance, notFound, ok
 from util import getElementFromParams
 
 
@@ -31,4 +31,4 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
     return ok(billidnData)
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

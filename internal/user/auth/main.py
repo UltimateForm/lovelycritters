@@ -1,10 +1,10 @@
 from db import getUserTable
-from framework import handlerDecorator, LoggerInstance, unauthorized, badRequest, ok
+from framework import httpHandlerDecorator, LoggerInstance, unauthorized, badRequest, ok
 import json
 from boto3.dynamodb.conditions import Attr, Key
 import jwt
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 JWT_SECRET = os.environ.get("JWT_SECRET")
 
@@ -37,15 +37,13 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     user: dict = response["Items"][0]
     userWithoutPwd = dict((i, user[i]) for i in user.keys() if i != "password")
     logger.info("userWithoutPassword generated", {"userWithoutPwd": userWithoutPwd})
-    dateTimeNow = datetime.now()
-    dateTimeExpiry = dateTimeNow + timedelta(hours=72)
+    dateTimeNow = datetime.now(tz=timezone.utc)
+    timeStampOfExpiry = (dateTimeNow + timedelta(hours=72)).timestamp()
     encodedJwt = jwt.encode(
         {
             "userData": userWithoutPwd,
-            "timestamp": {
-                "created": dateTimeNow.timestamp(),
-                "expiry": dateTimeExpiry.timestamp(),
-            },
+            "exp": timeStampOfExpiry,
+            "iat":dateTimeNow.timestamp()
         },
         JWT_SECRET,
         algorithm="HS256",
@@ -55,4 +53,4 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     return ok({"accessToken": encodedJwt})
 
 
-handler = handlerDecorator(rawHandler)
+handler = httpHandlerDecorator(rawHandler)

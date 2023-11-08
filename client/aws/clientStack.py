@@ -4,10 +4,12 @@ from aws_cdk import (
     aws_lambda,
     aws_apigateway,
     CfnOutput,
+    Duration,
     Fn,
+    CfnParameter,
     # aws_sqs as sqs,
 )
-from os import path, getcwd
+from os import path, getcwd, environ
 from constructs import Construct
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion, PythonFunction
 from .clientUserApi import createUserApi
@@ -19,6 +21,13 @@ class LC_ClientStack(Stack):
         cwd = getcwd()
         basePath = f"{cwd}/client"
         runtime: aws_lambda.Runtime = aws_lambda.Runtime.PYTHON_3_11
+        jwtSecretParam = CfnParameter(
+            self,
+            "jwtSecret",
+            type="String",
+            description="The jwt secret (should be in parameter store but i dont have patience)",
+            default=environ.get("JWT_SECRET"),
+        )
         pythonLayer = PythonLayerVersion(
             self, "lc_common", entry=f"{cwd}/common", compatible_runtimes=[runtime]
         )
@@ -32,7 +41,27 @@ class LC_ClientStack(Stack):
                 "api_key_required": True,
             },
         )
-        createUserApi(self, runtime, pythonLayer, basePath, api, internalApiUrl)
+        commonFunctionArgs = {
+            "runtime": runtime,
+            "index": "main.py",
+            "handler": "handler",
+            "environment": {"INTERNAL_API_URL": internalApiUrl, "INTERNAL_API_KEY": ""},
+            "timeout": Duration.seconds(30),
+            "layers": [pythonLayer],
+        }
+        authorizerLmbd = PythonFunction(
+            self,
+            "authorizer",
+            entry=path.join(basePath, "authorizer"),
+            function_name="lc-client-authorizer",
+            **{
+                **commonFunctionArgs,
+                "environment": {
+                    "JWT_SECRET": jwtSecretParam.value_as_string,
+                },
+            },
+        )
+        createUserApi(self, commonFunctionArgs, basePath, api)
         throttleSettings = aws_apigateway.ThrottleSettings(
             rate_limit=10, burst_limit=10
         )
