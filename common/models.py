@@ -1,18 +1,22 @@
 import datetime
 from typing import List
 from dataclasses import dataclass, field
-from typing import Optional
 import uuid
 from decimal import Decimal
 
 from util import dictWithoutKey
 
+# todo: find a framework way of doing data validation, don't forget type annotations are not binding
 
 @dataclass
 class Tenancy:
     checkInDate: datetime
     checkOutDate: datetime
 
+@dataclass
+class CritterTenancy(Tenancy):
+    petName:str
+    email:str
 
 @dataclass
 class Critter:

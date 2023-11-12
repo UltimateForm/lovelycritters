@@ -1,5 +1,4 @@
 from aws_cdk import (
-    # Duration,
     Stack,
     aws_lambda,
     aws_apigateway,
@@ -7,7 +6,6 @@ from aws_cdk import (
     Duration,
     Fn,
     CfnParameter,
-    # aws_sqs as sqs,
 )
 from os import path, getcwd, environ
 from constructs import Construct
@@ -32,6 +30,7 @@ class LC_ClientStack(Stack):
             self, "lc_common", entry=f"{cwd}/common", compatible_runtimes=[runtime]
         )
         internalApiUrl = Fn.import_value("internalApiUrl")
+        internalApiKey = environ.get("INTERNAL_API_KEY")
         api = aws_apigateway.RestApi(
             self,
             "client-api",
@@ -45,7 +44,10 @@ class LC_ClientStack(Stack):
             "runtime": runtime,
             "index": "main.py",
             "handler": "handler",
-            "environment": {"INTERNAL_API_URL": internalApiUrl, "INTERNAL_API_KEY": ""},
+            "environment": {
+                "INTERNAL_API_URL": internalApiUrl,
+                "INTERNAL_API_KEY": internalApiKey,
+            },
             "timeout": Duration.seconds(30),
             "layers": [pythonLayer],
         }
@@ -61,7 +63,14 @@ class LC_ClientStack(Stack):
                 },
             },
         )
-        createUserApi(self, commonFunctionArgs, basePath, api)
+        tokenAuthorizer = aws_apigateway.TokenAuthorizer(
+            self,
+            "token-authorizer",
+            handler=authorizerLmbd,
+            authorizer_name="lc-client-apigw-authorizer",
+            identity_source=aws_apigateway.IdentitySource.header("Authorization"),
+        )
+        createUserApi(self, commonFunctionArgs, basePath, api, tokenAuthorizer)
         throttleSettings = aws_apigateway.ThrottleSettings(
             rate_limit=10, burst_limit=10
         )

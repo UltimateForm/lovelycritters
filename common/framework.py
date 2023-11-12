@@ -251,16 +251,11 @@ def handlerDecorator(
             f"INCOMING REQUEST {resource}"
         )
         response = {}
-        try:
-            response = handler(
-                event,
-                context,
-                logger.branch("handlerFunction"),
-            )
-        except Exception as e:
-            logger.exception(str(e))
-            logger.error(f"Error occured while running handler: {str(e)}")
-            response = str(e)
+        response = handler(
+            event,
+            context,
+            logger.branch("handlerFunction"),
+        )
         logger.info(f"OUTGOING RESPONSE {response}")
         return response
 
