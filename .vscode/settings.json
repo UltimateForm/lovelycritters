@@ -1,6 +1,6 @@
 {
 	"python.analysis.extraPaths": ["./common"],
-	"python.analysis.exclude": ["./cdk.out"],
+	"python.analysis.exclude": ["./cdk.out", "**/site-packages/**"],
 	"[python]": {
 		"editor.defaultFormatter": "ms-python.black-formatter"
 	},

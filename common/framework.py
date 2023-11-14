@@ -78,7 +78,9 @@ class LoggerInstance:
         self._logger.debug(structedLog)
 
     def branch(self, branchName: str):
-        return LoggerInstance({**self._context}, branchName, self._name, self._primitiveLogging)
+        return LoggerInstance(
+            {**self._context}, branchName, self._name, self._primitiveLogging
+        )
 
 
 def createResponseLogger(logger: LoggerInstance):
@@ -133,7 +135,7 @@ class HttpClient:
         pass
 
     def send(
-        self, method: str, url: str, payload: dict | None, headers: dict
+        self, method: str, url: str, payload: dict | None = None, headers: dict = {}
     ) -> requests.Response:
         # todo: consider adding logs here
         return requests.request(
@@ -167,8 +169,8 @@ class HttpClient:
         responseJson = self._getJsonFromResponse(response)
         return (response.ok, response.status_code, responseJson)
 
-    def delete(self, url: str, payload: dict, headers: dict):
-        response = self.send("DELETE", url, payload, headers)
+    def delete(self, url: str, headers: dict):
+        response = self.send("DELETE", url, headers=headers)
         responseJson = self._getJsonFromResponse(response)
         return (response.ok, response.status_code, responseJson)
 
@@ -230,9 +232,9 @@ def httpHandlerDecorator(
 
     return handlerDecorated
 
+
 def handlerDecorator(
-    handler: Callable[[Any, Any, LoggerInstance], dict],
-    methodName: str
+    handler: Callable[[Any, Any, LoggerInstance], dict], methodName: str
 ) -> Callable[[Any, Any], dict]:
     def handlerDecorated(event, context):
         awsSamLocal = os.environ.get("AWS_SAM_LOCAL")
@@ -247,9 +249,7 @@ def handlerDecorator(
                 "Event": event,
             }
         )
-        logger.info(
-            f"INCOMING REQUEST {resource}"
-        )
+        logger.info(f"INCOMING REQUEST {resource}")
         response = {}
         response = handler(
             event,
@@ -260,6 +260,7 @@ def handlerDecorator(
         return response
 
     return handlerDecorated
+
 
 def response(statusCode: int, body: dict = None):
     response = {"statusCode": statusCode}

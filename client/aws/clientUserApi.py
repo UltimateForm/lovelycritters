@@ -32,6 +32,13 @@ def createUserApi(
         function_name="lc-client-updateUser",
         **commonFunctionArgs,
     )
+    deleteUserLmbd = PythonFunction(
+        stack,
+        "deleteUser",
+        entry=path.join(basePath, "user/deleteAccount"),
+        function_name="lc-client-deleteUser",
+        **commonFunctionArgs,
+    )
     userApi = api.root.add_resource("user")
     userApi.add_resource("register").add_method(
         "POST",
@@ -54,6 +61,13 @@ def createUserApi(
         "PUT",
         aws_apigateway.LambdaIntegration(
             updateUserLmbd,
+            request_templates={"application/json": '{"statusCode": "200"}'},
+        ),
+    )
+    userApiEmailPathed.add_method(
+        "DELETE",
+        aws_apigateway.LambdaIntegration(
+            deleteUserLmbd,
             request_templates={"application/json": '{"statusCode": "200"}'},
         ),
     )
