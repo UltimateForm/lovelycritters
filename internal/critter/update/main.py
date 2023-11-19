@@ -6,7 +6,9 @@ from db import getCritterTable
 from util import getElementFromParams
 
 
-def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
+def rawHandler(
+    event, context, logger: LoggerInstance, httpClient: HttpClient, **kwargs
+):
     critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
     critterPayload = event["body"]
@@ -14,9 +16,7 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
         logger.info(f"Received critter of type str, deserialzing")
         critterPayload = json.loads(critterPayload)
     (dynamodb, table) = getCritterTable()
-    critter = Critter(
-        petName=critterName, email=critterOwnerEmail, **critterPayload
-    )
+    critter = Critter(petName=critterName, email=critterOwnerEmail, **critterPayload)
     dbResponse = None
     try:
         dbResponse = table.update_item(
@@ -24,11 +24,13 @@ def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **
                 "email": critterOwnerEmail,
                 "petName": critterName,
             },
-            UpdateExpression="set birthDate=:bd, breed=:br, neutered=:ne, pastTenancy=:pt, species=:sp, vaccines=:vc",
+            UpdateExpression="set birthDate=:bd, breed=:br, neutered=:ne, futureTenancy=:ft, tenancy=:tn, pastTenancy=:pt, species=:sp, vaccines=:vc",
             ExpressionAttributeValues={
                 ":bd": critter.birthDate,
                 ":br": critter.breed,
                 ":ne": critter.neutered,
+                ":ft": critter.futureTenancy,
+                ":tn": critter.tenancy,
                 ":pt": critter.pastTenancy,
                 ":sp": critter.species,
                 ":vc": critter.vaccines,

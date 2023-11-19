@@ -1,9 +1,7 @@
 from framework import (
     httpHandlerDecorator,
-    okNoData,
     HttpClient,
     LoggerInstance,
-    response,
     ok,
 )
 from models import TenancyRegistryPayload, CritterTenancy, Critter, Tenancy

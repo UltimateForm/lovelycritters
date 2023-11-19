@@ -219,6 +219,8 @@ def httpHandlerDecorator(
                 f"Per bad status {responseStatusCode} initiating laundry cleanup"
             )
             try:
+                # todo: this should be a separate  lambda
+                # no sense in making user wait for a cleanup function
                 laundryMachine(laundry, logger.branch("laundryMachine"), httpClient)
             except Exception as e:
                 logger.exception(str(e))

@@ -33,15 +33,15 @@ def handlerRaw(event, context, logger: LoggerInstance):
                 {
                     "Action": "execute-api:Invoke",
                     "Effect": "Allow",
-                    "Resource": tenancyResource,
+                    "Resource": [tenancyResource, tenancyResource + "/*"],
                 },
                 {
                     "Action": "execute-api:Invoke",
                     "Effect": "Allow",
-                    "Resource": userResource,
+                    "Resource": [userResource, userResource + "/*"],
                 },
             ],
-        }
+        },
     }
 
 
