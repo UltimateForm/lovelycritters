@@ -12,7 +12,7 @@ import os
 
 def handlerRaw(event, context, logger: LoggerInstance, httpClient: HttpClient, laundry:dict):
     userEmail = getEmailFromPathParams(event)
-    logger.addCtxItem("userEmail", userEmail)
+    logger.addCtxItem("email", userEmail)
     logger.info(f"Client request deletion of user with email {userEmail}")
     (apiUrl, apiKey) = getInternalApi()
     deleteUserApiUrl = joinUrl(apiUrl, "user", userEmail)

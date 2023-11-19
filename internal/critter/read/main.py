@@ -3,13 +3,13 @@ from framework import HttpClient, httpHandlerDecorator, LoggerInstance, notFound
 from util import getElementFromParams
 
 
-def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
+def rawHandler(
+    event, context, logger: LoggerInstance, httpClient: HttpClient, **kwargs
+):
     (dynamodb, table) = getCritterTable()
     critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
-    logger.addCtx(
-        {"critterInput": {"email": critterOwnerEmail, "petName": critterName}}
-    )
+    logger.addCtx({"email": critterOwnerEmail, "petName": critterName})
     response = table.get_item(
         Key={
             "email": critterOwnerEmail,

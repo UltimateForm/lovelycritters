@@ -6,7 +6,7 @@ from util import getEmailFromPathParams
 def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     (dynamodb, table) = getUserTable()
     userEmail = getEmailFromPathParams(event)
-    logger.addCtxItem("userEmail", userEmail)
+    logger.addCtxItem("email", userEmail)
     response = table.get_item(Key={"email": userEmail})
     if "Item" not in response:
         logger.info("Could not find user")

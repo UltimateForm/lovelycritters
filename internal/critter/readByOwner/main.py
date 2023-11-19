@@ -7,7 +7,7 @@ from boto3.dynamodb.conditions import Key
 def rawHandler(event, context, logger: LoggerInstance, httpClient:HttpClient, **kwargs):
     (dynamodb, table) = getCritterTable()
     critterOwnerEmail = getElementFromParams("email", event)
-    logger.addCtx({"critterInput": {"email": critterOwnerEmail}})
+    logger.addCtxItem("email", critterOwnerEmail)
     response = table.query(
         KeyConditionExpression=Key("email").eq(critterOwnerEmail)
     )

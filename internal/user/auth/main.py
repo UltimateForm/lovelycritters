@@ -21,7 +21,7 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
         return badRequest(
             {"errorMessage": "Both email and password and required for authentication"}
         )
-    logger.addCtxItem("userEmail", authPayload.get("email"))
+    logger.addCtxItem("email", authPayload.get("email"))
     logger.info(f"Authenticating {userEmail}...")
     response = table.query(
         KeyConditionExpression=Key("email").eq(userEmail),

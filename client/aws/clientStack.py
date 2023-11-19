@@ -11,7 +11,7 @@ from os import path, getcwd, environ
 from constructs import Construct
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion, PythonFunction
 from .clientUserApi import createUserApi
-
+from .clientTenancyApi import createTenancyApi
 
 class LC_ClientStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
@@ -70,7 +70,10 @@ class LC_ClientStack(Stack):
             authorizer_name="lc-client-apigw-authorizer",
             identity_source=aws_apigateway.IdentitySource.header("Authorization"),
         )
+        # todo: create framework way of automatically building the api per filesystem or json connfig
+        # the way it is it creates too much repeated code
         createUserApi(self, commonFunctionArgs, basePath, api, tokenAuthorizer)
+        createTenancyApi(self, commonFunctionArgs, basePath, api, tokenAuthorizer)
         throttleSettings = aws_apigateway.ThrottleSettings(
             rate_limit=10, burst_limit=10
         )

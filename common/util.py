@@ -1,5 +1,5 @@
-from typing import List
-
+from typing import List, Any
+from models import asdict
 
 def generateUniqueId()->str:
 	import uuid
@@ -28,3 +28,7 @@ def getInternalApi():
     internalApiUrl = os.environ.get("INTERNAL_API_URL")
     internalApiKey = os.environ.get("INTERNAL_API_KEY")
     return (internalApiUrl, internalApiKey)
+
+def modelToDict(model:Any):
+    # note: mode.__dict__ is reportedly faster than asdict by a lot, should only use this for recursive conversions
+    return asdict(model)

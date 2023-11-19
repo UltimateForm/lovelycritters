@@ -84,8 +84,13 @@ class HandlerDecorator(unittest.TestCase):
 
         decoratedFunction = decorator(handler=handlerRaw, laundryMachine=laundryMachine)
         decoratedFunction(testEvent, {})
+        args = laundryMachine.call_args[0]
         laundryMachine.assert_called_once()
-        laundryMachine.assert_called_with({"itemToClean": "sd124"})
+        self.assertEqual(
+            {"itemToClean": "sd124"},
+            args[0],
+            "Laundry machine not called with expected cleanup data",
+        )
 
 
 if __name__ == "__main__":

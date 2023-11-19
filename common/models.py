@@ -1,22 +1,29 @@
 import datetime
-from typing import List
-from dataclasses import dataclass, field
+from typing import List, Optional
+from dataclasses import dataclass, field, asdict
 import uuid
 from decimal import Decimal
 
-from util import dictWithoutKey
-
 # todo: find a framework way of doing data validation, don't forget type annotations are not binding
+
 
 @dataclass
 class Tenancy:
-    checkInDate: datetime
-    checkOutDate: datetime
+    checkInDate: datetime.datetime
+    checkOutDate: datetime.datetime
+    tenancyId: str = field(init=False)
+
+    def __post_init__(self):
+        self.tenancyId = str(uuid.uuid4())
+
 
 @dataclass
-class CritterTenancy(Tenancy):
-    petName:str
-    email:str
+class CritterTenancy:  # inheritance makes things complicated here
+    petName: str
+    checkInDate: datetime.datetime
+    checkOutDate: datetime.datetime
+    tenancyId: Optional[str] = None
+
 
 @dataclass
 class Critter:
@@ -28,7 +35,12 @@ class Critter:
     neutered: bool = False
     vaccines: dict[str, bool] = field(default_factory=lambda: {})
     tenancy: Tenancy = None
+    futureTenancy: List[Tenancy] = field(default_factory=lambda: [])
     pastTenancy: List[Tenancy] = field(default_factory=lambda: [])
+
+@dataclass
+class TenancyRegistryPayload:
+    critters: List[CritterTenancy]
 
 
 @dataclass
@@ -86,6 +98,7 @@ class BillingStatement:
 
     @classmethod
     def fromDict(cls, d: dict):
+        from util import dictWithoutKey
         billedDictList = d.get("billed")
         billedProductList: List[BillingProduct] = []
         [

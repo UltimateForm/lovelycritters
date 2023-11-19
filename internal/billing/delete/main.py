@@ -7,7 +7,12 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getBillingTable()
     billingUserEmail = getElementFromParams("email", event)
     billingId = getElementFromParams("billingId", event)
-    logger.addCtx({"billingInput": {"email": billingUserEmail, "billingId": billingId}})
+    logger.addCtx(
+        {
+            "billingInput": {"email": billingUserEmail, "billingId": billingId},
+            "email": billingUserEmail,
+        }
+    )
     logger.info(
         f"Deleting billing statement wit id {billingId} for user {billingUserEmail}"
     )

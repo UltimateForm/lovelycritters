@@ -4,10 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
-start = "sudo sam local start-api -t ./cdk.out/LovelyCritters-ClientStack.template.json -n ./.env.json"
-synth = "sudo cdk synth"
+start = "sam local start-api -t ./cdk.out/LovelyCritters-ClientStack.template.json -n ./.env.json"
+synth = "cdk synth"
 start-fresh = "bash -c 'pipenv run synth && pipenv run start'"
-deploy = "sudo cdk deploy --all"
+deploy = "cdk deploy --all"
 
 
 [packages]

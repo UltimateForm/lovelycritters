@@ -7,9 +7,7 @@ def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getCritterTable()
     critterOwnerEmail = getElementFromParams("email", event)
     critterName = getElementFromParams("petName", event)
-    logger.addCtx(
-        {"critterInput": {"email": critterOwnerEmail, "petName": critterName}}
-    )
+    logger.addCtx({"email": critterOwnerEmail, "petName": critterName})
     logger.info(
         f"Deleting critter with petName:email  {critterName}:{critterOwnerEmail}"
     )

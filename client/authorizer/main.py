@@ -26,6 +26,7 @@ def handlerRaw(event, context, logger: LoggerInstance):
     tenancyResource = f"arn:aws:execute-api:{region}:{accountId}:{apiGatewayId}/{apiGatewayStage}/*/tenancy/{userEmail}"
     userResource = f"arn:aws:execute-api:{region}:{accountId}:{apiGatewayId}/{apiGatewayStage}/*/user/{userEmail}"
     return {
+        "principalId": userEmail,
         "policyDocument": {
             "Version": "2012-10-17",
             "Statement": [

@@ -7,7 +7,7 @@ from boto3.dynamodb.conditions import Attr
 def rawHandler(event, _, logger: LoggerInstance, __, **kwargs):
     (dynamodb, table) = getUserTable()
     userEmail = getEmailFromPathParams(event)
-    logger.addCtxItem("userEmail", userEmail)
+    logger.addCtxItem("email", userEmail)
     logger.info(f"Deleting user with email {userEmail}")
     deletion = None
     try:
