@@ -24,7 +24,6 @@ class CritterTenancy:  # inheritance makes things complicated here
     checkOutDate: datetime.datetime
     tenancyId: Optional[str] = None
 
-
 @dataclass
 class Critter:
     petName: str
@@ -39,8 +38,9 @@ class Critter:
     pastTenancy: List[Tenancy] = field(default_factory=lambda: [])
 
 @dataclass
-class TenancyRegistryPayload:
-    critters: List[CritterTenancy]
+class TenancyCollection:
+    critters: List[CritterTenancy] = field(default_factory=lambda: [])
+    count: Optional[int] = 0
 
 
 @dataclass

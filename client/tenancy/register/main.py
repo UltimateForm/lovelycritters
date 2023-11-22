@@ -4,7 +4,7 @@ from framework import (
     LoggerInstance,
     ok,
 )
-from models import TenancyRegistryPayload, CritterTenancy, Critter, Tenancy
+from models import TenancyCollection, CritterTenancy, Critter, Tenancy
 from util import (
     getEmailFromPathParams,
     getInternalApi,
@@ -75,12 +75,11 @@ def handlerRaw(
     if isinstance(payload, str):
         logger.info(f"Received payload of type str, deserialzing")
         payload = json.loads(payload)
-    (internalApiUrl, internalApiKey) = getInternalApi()
-    registry = TenancyRegistryPayload(
+    registry = TenancyCollection(
         critters=[CritterTenancy(**critter) for critter in payload.get("critters")]
     )  # validation purposes
     petTenancies = registry.critters
-    createdTenancies: List[CritterTenancy] = []
+    createdTenancies = TenancyCollection([], 0)
     for petTenancy in petTenancies:
         currentPetLogger = logger.branch("petIteratorForTenacyRegistry")
         currentPetLogger.addCtxItem("petName", petTenancy.petName)
@@ -103,9 +102,10 @@ def handlerRaw(
         currentPetLogger.info(
             f"Registered future tenancy with id {createdTenacy.tenancyId} for pet {petTenancy.petName}({userEmail}), from {petTenancy.checkInDate} to {petTenancy.checkOutDate}"
         )
-        createdTenancies.append(createdTenacy)
-    logger.info(f"Added {len(createdTenancies)} tenancies")
-    return ok([ten.__dict__ for ten in createdTenancies])
+        createdTenancies.critters.append(createdTenacy)
+    createdTenancies.count = len(createdTenancies.critters)
+    logger.info(f"Added {len(createdTenancies.count)} tenancies")
+    return ok(modelToDict(createdTenancies))
 
 
 handler = httpHandlerDecorator(handlerRaw)

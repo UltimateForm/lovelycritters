@@ -1,5 +1,6 @@
 from typing import List, Any
 from models import asdict
+from dateutil import parser
 
 def generateUniqueId()->str:
 	import uuid
@@ -32,3 +33,6 @@ def getInternalApi():
 def modelToDict(model:Any):
     # note: mode.__dict__ is reportedly faster than asdict by a lot, should only use this for recursive conversions
     return asdict(model)
+
+def parseDate(txt:str):
+    return parser.parse(txt)

@@ -50,7 +50,7 @@ class LoggerInstance:
         if self._primitiveLogging:
             return msg
         combinedDict = {**self._context, **ctx, "message": msg}
-        jsonLog = json.dumps(combinedDict)
+        jsonLog = json.dumps(combinedDict, default=str)
         return jsonLog
 
     def info(self, msg: str, ctx: dict[str, Any] = {}):
@@ -210,7 +210,7 @@ def httpHandlerDecorator(
         except Exception as e:
             logger.exception(str(e))
             logger.error(f"Error occured while processing request: {str(e)}")
-            response = {"statusCode": 500, "body": json.dumps({"errorMessage": str(e)})}
+            response = {"statusCode": 500, "body": json.dumps({"errorMessage": str(e)}, default=str)}
         responseStatusCode = response.get("statusCode")
         if (
             responseStatusCode >= 400 or responseStatusCode < 200
@@ -267,7 +267,7 @@ def handlerDecorator(
 def response(statusCode: int, body: dict = None):
     response = {"statusCode": statusCode}
     if body is not None:
-        response["body"] = json.dumps(body)
+        response["body"] = json.dumps(body, default=str)
     return response
 
 
