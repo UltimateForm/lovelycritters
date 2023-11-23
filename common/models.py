@@ -11,11 +11,7 @@ from decimal import Decimal
 class Tenancy:
     checkInDate: datetime.datetime
     checkOutDate: datetime.datetime
-    tenancyId: str = field(init=False)
-
-    def __post_init__(self):
-        self.tenancyId = str(uuid.uuid4())
-
+    tenancyId: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
 
 @dataclass
 class CritterTenancy:  # inheritance makes things complicated here
@@ -23,6 +19,7 @@ class CritterTenancy:  # inheritance makes things complicated here
     checkInDate: datetime.datetime
     checkOutDate: datetime.datetime
     tenancyId: Optional[str] = None
+
 
 @dataclass
 class Critter:
@@ -36,6 +33,7 @@ class Critter:
     tenancy: Tenancy = None
     futureTenancy: List[Tenancy] = field(default_factory=lambda: [])
     pastTenancy: List[Tenancy] = field(default_factory=lambda: [])
+
 
 @dataclass
 class TenancyCollection:
@@ -99,6 +97,7 @@ class BillingStatement:
     @classmethod
     def fromDict(cls, d: dict):
         from util import dictWithoutKey
+
         billedDictList = d.get("billed")
         billedProductList: List[BillingProduct] = []
         [

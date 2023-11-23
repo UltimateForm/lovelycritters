@@ -32,6 +32,13 @@ def createTenancyApi(
         function_name="lc-client-getAllTenancies",
         **commonFunctionArgs,
     )
+    checkInLmbd = PythonFunction(
+        stack,
+        "checkIn",
+        entry=path.join(basePath, "tenancy/checkIn"),
+        function_name="lc-client-checkIn",
+        **commonFunctionArgs,
+    )
     tenancyApi = api.root.add_resource("tenancy")
     tenancyApiEmailPathed = tenancyApi.add_resource(
         "{email}", default_method_options=MethodOptions(authorizer=authorizer)
@@ -56,6 +63,13 @@ def createTenancyApi(
         "DELETE",
         aws_apigateway.LambdaIntegration(
             cancelTenancyLmbd,
+            request_templates={"application/json": '{"statusCode": "200"}'},
+        ),
+    )
+    tenancyApiTenancyIdPathed.add_resource("in").add_method(
+        "POST",
+        aws_apigateway.LambdaIntegration(
+            checkInLmbd,
             request_templates={"application/json": '{"statusCode": "200"}'},
         ),
     )

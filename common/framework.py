@@ -186,16 +186,15 @@ def httpHandlerDecorator(
         )
         initLoggerConfig()
         resource = event.get("resource")
+        method = event.get("httpMethod")
         logger.addCtx(
             {
                 "Resource": resource,
-                "Method": event.get("httpMethod"),
+                "Method": method,
                 "Event": event,
             }
         )
-        logger.info(
-            f"INCOMING REQUEST {event.get('httpMethod')} {event.get('resource')}"
-        )
+        logger.info(f"INCOMING REQUEST {method} {resource}")
         httpClient = HttpClient(logger.branch(HttpClient.__name__))
         response = {}
         laundry = {}
@@ -210,7 +209,10 @@ def httpHandlerDecorator(
         except Exception as e:
             logger.exception(str(e))
             logger.error(f"Error occured while processing request: {str(e)}")
-            response = {"statusCode": 500, "body": json.dumps({"errorMessage": str(e)}, default=str)}
+            response = {
+                "statusCode": 500,
+                "body": json.dumps({"errorMessage": str(e)}, default=str),
+            }
         responseStatusCode = response.get("statusCode")
         if (
             responseStatusCode >= 400 or responseStatusCode < 200
@@ -226,10 +228,11 @@ def httpHandlerDecorator(
                 logger.exception(str(e))
                 # Note: good place for alarm example
                 logger.critical(f"ROLLBACK PROCEDURE FAILED FOR {resource}")
-        logger.addCtx(
-            {"StatusCode": response.get("statusCode"), "Body": response.get("body")}
+        rStatusCode = response.get("statusCode")
+        logger.addCtx({"StatusCode": rStatusCode, "Body": response.get("body")})
+        logger.info(
+            f"OUTGOING RESPONSE {method} {resource} {rStatusCode}"
         )
-        logger.info(f"OUTGOING RESPONSE {response.get('statusCode')}")
         return response
 
     return handlerDecorated
