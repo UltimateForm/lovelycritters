@@ -13,3 +13,5 @@ Stack:
 - AWS Lambda
 - AWS DynamoDB
 - AWS ApiGateway
+
+And yes, I am aware library/framework X can do the job Y and I am reinventing the wheel. It is intentional.
