@@ -1,4 +1,4 @@
-from aws_cdk import Stack, aws_lambda, CfnParameter, aws_apigateway
+from aws_cdk import Duration, Stack, aws_lambda, CfnParameter, aws_apigateway
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion, PythonFunction
 from .databases import Databases
 from os import path
@@ -18,6 +18,7 @@ def createBillingApi(
         "handler": "handler",
         "environment": {"BILLING_TABLE_NAME": dbs.billing.table_name},
         "layers": [pythonLayer],
+        "timeout": Duration.seconds(30),
     }
     createBillingStatementLmbd = PythonFunction(
         stack,

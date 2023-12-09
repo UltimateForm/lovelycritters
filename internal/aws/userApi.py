@@ -1,4 +1,4 @@
-from aws_cdk import Stack, aws_lambda, CfnParameter, aws_apigateway
+from aws_cdk import Duration, Stack, aws_lambda, CfnParameter, aws_apigateway
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion, PythonFunction
 from .databases import Databases
 from os import path
@@ -19,6 +19,7 @@ def createUserApi(
         "handler": "handler",
         "environment": {"USER_TABLE_NAME": dbs.user.table_name},
         "layers": [pythonLayer],
+        "timeout": Duration.seconds(30),
     }
     createUserLmbd = PythonFunction(
         stack,
