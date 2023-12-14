@@ -1,6 +1,6 @@
 # Lovely Critters
 
-This is a WIP microservices project powered by AWS Services
+This is a WIP microservices project powered by AWS
 
 Stack:
 
